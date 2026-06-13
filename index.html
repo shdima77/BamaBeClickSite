@@ -1,500 +1,761 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he" dir="rtl" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>במה בקליק - כל הבילויים והאירועים בטלגרם אחד</title>
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>במה בקליק - הבוט שלכם לאירועים והופעות בטלגרם</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts (Inter & Assistant for Hebrew) -->
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body {
-            font-family: 'Assistant', 'Inter', sans-serif;
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, #111827 0%, #1f2937 50%, #111827 100%);
-        }
-        .neon-glow {
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
-        }
-        /* Style only applied on desktop to make a physical phone container */
-        @media (min-width: 1024px) {
-            .phone-container-desktop {
-                background-color: #151f2d;
-                border: 12px solid #2e3b4e;
-                border-radius: 40px;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-                height: 640px;
-                width: 340px;
+    <!-- Google Fonts - Assistant -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Assistant', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0a0714',
+                            card: '#130f26',
+                            purple: '#7c3aed',
+                            purpleHover: '#6d28d9',
+                            accent: '#f59e0b', // Gold/Amber
+                            success: '#10b981',
+                            telegram: '#0088cc',
+                        }
+                    }
+                }
             }
         }
-        /* Retro style stripes for the Kaveret tribute poster */
-        .retro-stripes {
-            background: linear-gradient(110deg, 
-                #4e7a6b 0%, #4e7a6b 20%, 
-                #ded1a2 20%, #ded1a2 40%, 
-                #df9b3e 40%, #df9b3e 60%, 
-                #d36135 60%, #d36135 80%, 
-                #b02c25 80%, #b02c25 100%
-            );
+    </script>
+    <style>
+        body {
+            background-color: #0a0714;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+            -webkit-tap-highlight-color: transparent; /* Clean tap visual effect on iOS */
         }
-        /* Custom scrollbar for simulated phone */
-        .phone-chat::-webkit-scrollbar {
-            width: 4px;
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
         }
-        .phone-chat::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.1);
+        ::-webkit-scrollbar-track {
+            background: #0a0714;
         }
-        .phone-chat::-webkit-scrollbar-thumb {
-            background: rgba(16, 185, 129, 0.3);
-            border-radius: 2px;
+        ::-webkit-scrollbar-thumb {
+            background: #7c3aed;
+            border-radius: 4px;
+        }
+        /* Lock visual viewport issues on dynamic mobile keyboards */
+        .simulator-height {
+            height: 580px;
+        }
+        @media (max-width: 480px) {
+            .simulator-height {
+                height: 520px;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-950 text-gray-100 antialiased">
+<body class="text-slate-100 font-sans min-h-screen flex flex-col justify-between overflow-x-hidden">
 
-    <!-- Navbar -->
-    <header class="border-b border-gray-800 bg-gray-950/80 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3 space-x-reverse">
-                <div class="bg-emerald-500 text-gray-950 p-2 rounded-xl font-bold text-lg tracking-wider">
-                    במה
+    <header class="border-b border-purple-900/30 bg-brand-dark/90 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center gap-2">
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-tr from-brand-purple to-brand-accent rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0">
+                    <i class="fa-solid fa-ticket text-white text-base md:text-xl transform -rotate-12"></i>
                 </div>
-                <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
-                    במה בקליק
-                </span>
+                <div>
+                    <span class="text-base md:text-xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-brand-accent">במה בקליק</span>
+                    <span class="text-[10px] md:text-xs block text-purple-400 font-semibold leading-none mt-0.5">הכי פשוט, הכי מהיר</span>
+                </div>
             </div>
-            <div class="flex items-center space-x-4 space-x-reverse">
-                <a href="#about-bot" class="hidden md:inline-block text-gray-300 hover:text-emerald-400 transition-colors text-sm font-medium">איך הבוט עובד?</a>
-                <a href="#why-join" class="hidden md:inline-block text-gray-300 hover:text-emerald-400 transition-colors text-sm font-medium">למה להצטרף?</a>
-                <a href="https://t.me/BamaBeClickbot" target="_blank" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-gray-950 rounded-full font-bold text-sm transition-all shadow-lg shadow-emerald-500/20 transform hover:scale-105">
-                    הפעל בוט בחינם
-                </a>
-            </div>
+            <a href="https://t.me/BamaBeClickbot" target="_blank" class="bg-brand-telegram hover:bg-sky-600 text-white font-bold py-2 px-4 md:py-2.5 md:px-5 rounded-full transition-all duration-300 flex items-center gap-1.5 md:gap-2 shadow-md shadow-sky-500/20 text-xs md:text-base shrink-0">
+                <i class="fa-brands fa-telegram text-sm md:text-lg"></i>
+                <span>פתח בטלגרם</span>
+            </a>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="relative overflow-hidden pt-8 pb-16 md:pt-20 md:pb-32 gradient-bg">
-        <!-- Background light beams -->
-        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-        <div class="absolute bottom-10 left-10 w-[300px] h-[300px] bg-teal-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-        <div class="max-w-6xl mx-auto px-4 grid lg:grid-cols-12 gap-10 items-center">
-            <!-- Text Content -->
-            <div class="lg:col-span-7 text-center lg:text-right space-y-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-800 text-emerald-400 text-xs font-semibold">
-                    <i data-lucide="sparkles" class="w-4 h-4"></i>
-                    <span>כל ההופעות, הסרטים והסטנד-אפ במקום אחד</span>
-                </div>
-                <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight tracking-tight">
-                    לאן יוצאים הערב? <br>
-                    <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500 bg-clip-text text-transparent">
-                        מוצאים ב-5 שניות!
+    <main class="flex-grow">
+        <section class="max-w-6xl mx-auto px-4 py-8 md:py-20 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <!-- Hero Text -->
+            <div class="lg:col-span-7 text-center lg:text-right space-y-4 md:space-y-6">
+                <div class="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 rounded-full px-3.5 py-1.5 text-brand-accent font-semibold text-xs md:text-sm">
+                    <span class="flex h-2.5 w-2.5 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-accent"></span>
                     </span>
+                    בוט אירועים חכם וחינמי בטלגרם
+                </div>
+                <h1 class="text-3xl md:text-5xl lg:text-6xl font-black leading-tight text-white">
+                    כל ההצגות וההופעות <br class="hidden md:inline">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-accent">בקליק אחד ישיר!</span>
                 </h1>
-                <p class="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0 font-light leading-relaxed">
-                    בלי חיפושים מתישים בגוגל, בלי לעבור בין עשרה אתרי כרטיסים. הבוט והערוץ של <strong class="text-white font-semibold">"במה בקליק"</strong> מביאים לכם את כל מה שקורה הערב – סרטים, הצגות, מופעים, סטנד-אפ ופעילויות לילדים, ישירות לטלגרם שלכם.
+                <p class="text-slate-300 text-sm md:text-xl max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light">
+                    נמאס לכם לחפש בעשרות אתרים מה לעשות הערב או בסופ"ש? <br class="hidden md:inline">
+                    הכירו את <strong>במה בקליק</strong> – הבוט החכם שמוצא לכם את ההצגות, ההופעות ומופעי הסטנד-אפ הכי שווים באזור שלכם, כולל קישורים ישירים לרכישה והתראות מותאמות אישית.
                 </p>
-
-                <!-- Actions -->
-                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-2">
-                    <a href="https://t.me/BamaBeClickbot" target="_blank" class="px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-gray-950 font-bold rounded-2xl shadow-xl shadow-emerald-500/25 transition-all transform hover:translate-y-[-2px] flex items-center justify-center gap-2">
-                        <i data-lucide="play" class="w-5 h-5 fill-current"></i>
+                
+                <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start pt-2">
+                    <a href="https://t.me/BamaBeClickbot" target="_blank" class="bg-gradient-to-l from-brand-purple to-purple-500 hover:scale-[1.02] active:scale-95 text-white font-extrabold text-base md:text-lg py-3.5 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-purple-500/30">
+                        <i class="fa-brands fa-telegram text-xl md:text-2xl"></i>
                         <span>להפעלת הבוט בחינם</span>
                     </a>
-                    <a href="https://t.me/BamaBeClick" target="_blank" class="px-8 py-4 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 text-white font-bold rounded-2xl transition-all transform hover:translate-y-[-2px] flex items-center justify-center gap-2">
-                        <i data-lucide="send" class="w-5 h-5"></i>
-                        <span>הצטרפות לערוץ העדכונים</span>
+                    <a href="#simulator-section" class="bg-slate-800/80 hover:bg-slate-800 text-slate-300 font-bold text-base md:text-lg py-3.5 px-6 rounded-2xl transition-all duration-300 border border-slate-700 text-center">
+                        <span>נסו את הסימולטור 👇</span>
                     </a>
                 </div>
 
-                <!-- Stats / Quick Trust -->
-                <div class="grid grid-cols-3 gap-4 pt-6 border-t border-gray-800/80 max-w-md mx-auto lg:mx-0">
-                    <div>
-                        <p class="text-2xl md:text-3xl font-bold text-white">100%</p>
-                        <p class="text-xs text-gray-400">חינם לחלוטין</p>
+                <!-- Live stats -->
+                <div class="grid grid-cols-3 gap-3 pt-6 border-t border-purple-900/20 max-w-md mx-auto lg:mx-0">
+                    <div class="text-center lg:text-right">
+                        <div class="text-xl md:text-3xl font-extrabold text-white">100%</div>
+                        <div class="text-[10px] md:text-sm text-slate-400">חינמי לחלוטין</div>
                     </div>
-                    <div>
-                        <p class="text-2xl md:text-3xl font-bold text-white">2</p>
-                        <p class="text-xs text-gray-400">שפות (עברית ורוסית)</p>
+                    <div class="text-center lg:text-right border-r border-slate-800 pr-3">
+                        <div class="text-xl md:text-3xl font-extrabold text-white">2 שפות</div>
+                        <div class="text-[10px] md:text-sm text-slate-400">עברית ורוסית</div>
                     </div>
-                    <div>
-                        <p class="text-2xl md:text-3xl font-bold text-white">5</p>
-                        <p class="text-xs text-gray-400">שניות לחיפוש</p>
+                    <div class="text-center lg:text-right border-r border-slate-800 pr-3">
+                        <div class="text-xl md:text-3xl font-extrabold text-white">בכל הארץ</div>
+                        <div class="text-[10px] md:text-sm text-slate-400">מצפון ועד דרום</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Mobile-Optimized Simulated Bot Preview -->
-            <div class="lg:col-span-5 flex justify-center w-full">
-                <!-- On mobile: simple sleek container. On desktop: real phone-mockup container -->
-                <div class="phone-container-desktop w-full max-w-md lg:max-w-[340px] rounded-3xl lg:rounded-[40px] overflow-hidden flex flex-col bg-[#151f2d] border border-gray-800 lg:border-none shadow-2xl neon-glow">
-                    
-                    <!-- Phone notch ONLY on desktop -->
-                    <div class="hidden lg:flex absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-[#2e3b4e] rounded-b-2xl z-20 justify-center items-center pointer-events-none">
-                        <div class="w-12 h-1 bg-gray-700 rounded-full"></div>
+            <div id="simulator-section" class="lg:col-span-5 w-full max-w-md mx-auto scroll-mt-20">
+                <div class="bg-[#110c22]/95 border-2 border-purple-500/30 rounded-3xl overflow-hidden shadow-2xl shadow-purple-950/50 flex flex-col simulator-height">
+                    <!-- Chat Header -->
+                    <div class="bg-[#1e1738] px-4 py-2.5 flex items-center justify-between border-b border-purple-900/40">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-tr from-brand-purple to-brand-accent rounded-full flex items-center justify-center text-white font-bold relative shadow-md shrink-0">
+                                <i class="fa-solid fa-ticket transform -rotate-12 text-sm md:text-base"></i>
+                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-[#1e1738] rounded-full"></span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xs md:text-sm text-white flex items-center gap-1">
+                                    במה בקליק
+                                    <i class="fa-solid fa-circle-check text-sky-400 text-[10px] md:text-xs"></i>
+                                </h3>
+                                <p class="text-[9px] md:text-[10px] text-purple-300">בוט • bot</p>
+                            </div>
+                        </div>
+                        <button onclick="resetSimulator()" class="text-[10px] md:text-xs text-slate-400 hover:text-white bg-slate-800/60 px-2 py-1 md:px-2.5 md:py-1.5 rounded-lg transition-colors flex items-center gap-1 active:scale-95">
+                            <i class="fa-solid fa-rotate-left"></i>אתחול
+                        </button>
                     </div>
 
-                    <!-- Bot App Header -->
-                    <div class="bg-[#1f2c3f] pt-4 lg:pt-8 pb-3 px-4 flex items-center gap-3 border-b border-gray-800">
-                        <div class="w-10 h-10 rounded-full bg-emerald-500 text-gray-950 font-bold flex items-center justify-center text-base">
-                            במה
+                    <!-- Chat Messages Screen -->
+                    <div id="chat-messages" class="flex-grow p-3 md:p-4 overflow-y-auto space-y-3 text-xs md:text-sm flex flex-col">
+                        <!-- Messages dynamically added by JS -->
+                    </div>
+
+                    <!-- Dynamic Simulator Action Panel (Telegrams Keyboard) -->
+                    <div id="action-panel" class="bg-[#18122f] p-3 md:p-4 border-t border-purple-900/40 min-h-[140px] md:min-h-[160px] flex flex-col justify-center gap-2">
+                        <!-- Dynamic buttons go here via JS -->
+                    </div>
+                </div>
+                <p class="text-center text-[10px] md:text-xs text-slate-500 mt-2 font-mono">הקליקו על כפתורי הבוט מעל לסימולציה מלאה!</p>
+            </div>
+        </section>
+
+        <section class="bg-brand-card/40 border-y border-purple-900/20 py-12 md:py-16">
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="text-center max-w-2xl mx-auto mb-8 md:mb-12">
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-white">איך הבוט עוזר לכם? ב-4 שלבים מהירים!</h2>
+                    <p class="text-xs md:text-sm text-slate-400 mt-2">סינון חכם ומדויק שחוסך לכם זמן ועוזר לכם לתכנן את הבילוי המושלם</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <!-- Step 1 -->
+                    <div class="bg-brand-card/60 p-5 md:p-6 rounded-2xl border border-purple-900/20 hover:border-purple-500/30 transition-all duration-300">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-500/10 text-brand-purple rounded-xl flex items-center justify-center text-lg md:text-xl font-bold mb-3 md:mb-4 border border-purple-500/20">
+                            1
+                        </div>
+                        <h3 class="text-base md:text-lg font-bold text-white mb-1 md:mb-2">מתי מבלים?</h3>
+                        <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+                            היום, בסוף השבוע, בשבוע הבא או בתאריך ספציפי. גמישות ונוחות מירבית.
+                        </p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="bg-brand-card/60 p-5 md:p-6 rounded-2xl border border-purple-900/20 hover:border-purple-500/30 transition-all duration-300">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-500/10 text-brand-purple rounded-xl flex items-center justify-center text-lg md:text-xl font-bold mb-3 md:mb-4 border border-purple-500/20">
+                            2
+                        </div>
+                        <h3 class="text-base md:text-lg font-bold text-white mb-1 md:mb-2">איפה בארץ?</h3>
+                        <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+                            בוחרים אזור (מרכז, שרון, צפון) ומקבלים רשימת ערים מותאמת אישית כמו תל אביב, רמת גן או אפילו מנזר בית ג'מל!
+                        </p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="bg-brand-card/60 p-5 md:p-6 rounded-2xl border border-purple-900/20 hover:border-purple-500/30 transition-all duration-300">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-500/10 text-brand-purple rounded-xl flex items-center justify-center text-lg md:text-xl font-bold mb-3 md:mb-4 border border-purple-500/20">
+                            3
+                        </div>
+                        <h3 class="text-base md:text-lg font-bold text-white mb-1 md:mb-2">בוחרים סגנון</h3>
+                        <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+                            הצגות תיאטרון מרגשות, הופעות חיות או ערבי סטנד-אפ קורעים מצחוק.
+                        </p>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="bg-brand-card/60 p-5 md:p-6 rounded-2xl border border-purple-900/20 hover:border-purple-500/30 transition-all duration-300">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-500/10 text-brand-purple rounded-xl flex items-center justify-center text-lg md:text-xl font-bold mb-3 md:mb-4 border border-purple-500/20">
+                            4
+                        </div>
+                        <h3 class="text-base md:text-lg font-bold text-white mb-1 md:mb-2">כרטיסים והתראות</h3>
+                        <p class="text-xs md:text-sm text-slate-400 leading-relaxed">
+                            צופים בכרטיסי אירוע מפורטים עם תקציר ומחירים, רוכשים ישירות או נרשמים לקבלת התראות לעיר שלכם בלחיצה אחת!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="max-w-6xl mx-auto px-4 py-12 md:py-16 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            <div class="space-y-4 md:space-y-6">
+                <h2 class="text-2xl md:text-3xl font-extrabold text-white leading-tight">
+                    התכונות שהופכות את <span class="text-brand-purple">"במה בקליק"</span> לבוט הכי יעיל בנייד שלכם:
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="flex gap-3 md:gap-4 items-start">
+                        <div class="p-2.5 md:p-3 bg-amber-500/10 text-brand-accent rounded-xl border border-amber-500/20 shrink-0">
+                            <i class="fa-solid fa-bell text-lg md:text-xl"></i>
                         </div>
                         <div>
-                            <p class="text-sm font-bold text-white leading-tight">במה בקליק Bot</p>
-                            <p class="text-[10px] text-emerald-400">בוט פעיל • bot</p>
+                            <h4 class="text-base md:text-lg font-bold text-white">התראות חמות על אירועים חדשים</h4>
+                            <p class="text-slate-400 text-xs md:text-sm mt-1 leading-relaxed">
+                                לא רוצים לפספס מופעים בעיר שלכם? הירשמו בלחיצת כפתור לקבלת התראות וקבלו עדכון ישירות לנייד ברגע שעולה אירוע חדש בעיר שלכם!
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Chat Area -->
-                    <div class="phone-chat p-4 overflow-y-auto space-y-4 text-right text-xs lg:text-[11px] h-[450px] lg:h-auto lg:flex-1">
-                        <div class="bg-gray-800 text-gray-200 p-3.5 rounded-2xl rounded-tr-none max-w-[90%] lg:max-w-[85%] mr-auto shadow">
-                            <p class="font-bold mb-1 text-sm lg:text-xs">ברוכים הבאים לבמה בקליק.</p>
-                            <p class="leading-relaxed">כל ההופעות, הסרטים וההצגות בלחיצת כפתור. מצא מה לעשות הערב. בחר קטגוריה:</p>
+                    <div class="flex gap-3 md:gap-4 items-start">
+                        <div class="p-2.5 md:p-3 bg-purple-500/10 text-brand-purple rounded-xl border border-purple-500/20 shrink-0">
+                            <i class="fa-solid fa-language text-lg md:text-xl"></i>
                         </div>
+                        <div>
+                            <h4 class="text-base md:text-lg font-bold text-white">תמיכה מלאה בדו-לשוניות (עברית / רוסית)</h4>
+                            <p class="text-slate-400 text-xs md:text-sm mt-1 leading-relaxed">
+                                חוויית שימוש מושלמת ומותאמת אישית לקהל דובר עברית ודובר רוסית (Русский) בלחיצת כפתור אחת פשוטה.
+                            </p>
+                        </div>
+                    </div>
 
-                        <!-- Active category simulated state (Dynamically loaded based on click) -->
-                        <div id="simulated-result" class="bg-gray-800 text-gray-200 p-3.5 rounded-2xl rounded-tr-none max-w-[95%] mr-auto shadow hidden border border-emerald-500/30">
-                            <!-- Beautiful dynamic mock of bot results -->
-                            <div id="simulated-result-card" class="rounded-xl overflow-hidden bg-gray-900 border border-gray-700 mb-2">
-                                <!-- Image placeholder / Dynamic text banner -->
-                                <div id="simulated-card-banner" class="h-28 flex items-center justify-center font-bold text-sm text-white p-2 text-center transition-all duration-300">
-                                    מעבדת הסטנדאפ
-                                </div>
-                                <div class="p-3 space-y-2 text-right">
-                                    <h4 id="simulated-card-title" class="font-bold text-white text-sm">🌟 מעבדת הסטנדאפ</h4>
-                                    <p id="simulated-card-desc" class="text-gray-400 text-xs lg:text-[10px] leading-relaxed">ערב בדיקת חומרים חדשים של מיטב האמנים!</p>
-                                    <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-xs lg:text-[10px] pt-1.5 border-t border-gray-800 text-gray-300">
-                                        <div id="simulated-card-type">📂 סוג: סטנדאפ</div>
-                                        <div id="simulated-card-city">📍 עיר: תל אביב-יפו</div>
-                                        <div id="simulated-card-date">📅 יום ד', 03/06/2026</div>
-                                        <div id="simulated-card-price">💰 החל מ-56 ש"ח</div>
-                                    </div>
-                                </div>
+                    <div class="flex gap-3 md:gap-4 items-start">
+                        <div class="p-2.5 md:p-3 bg-green-500/10 text-brand-success rounded-xl border border-green-500/20 shrink-0">
+                            <i class="fa-solid fa-credit-card text-lg md:text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-base md:text-lg font-bold text-white">חיסכון בעמלות וקישורים רשמיים</h4>
+                            <p class="text-slate-400 text-xs md:text-sm mt-1 leading-relaxed">
+                                הבוט מפנה לקופות הרשמיות והמאובטחות, ללא עמלות תיווך מופקעות של ספסרים.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-brand-card to-[#120e25] p-5 md:p-8 rounded-3xl border border-purple-900/30 space-y-4 md:space-y-6 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-16 -bottom-16 w-48 h-48 bg-brand-purple/10 rounded-full blur-3xl"></div>
+                
+                <h3 class="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-brand-accent"></i>
+                    כרטיס אירוע מפורט ומזמין
+                </h3>
+                
+                <!-- Mock Event Card -->
+                <div class="bg-[#1c163a] border border-purple-500/20 rounded-2xl overflow-hidden shadow-2xl text-xs">
+                    <div class="bg-black/40 h-36 md:h-44 flex items-center justify-center relative bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1200&auto=format&fit=crop');">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#1c163a] via-transparent to-black/55"></div>
+                        <span class="absolute top-2.5 right-2.5 bg-amber-500 text-slate-950 font-black px-2 py-0.5 md:py-1 rounded text-[10px] md:text-xs flex items-center gap-1 shadow">
+                            <span>⭐ שונאים סיפור אהבה - תיאטרון בית ליסין</span>
+                        </span>
+                    </div>
+                    
+                    <div class="p-3.5 md:p-4 space-y-3.5">
+                        <p class="text-slate-300 text-[11px] md:text-xs leading-relaxed">
+                            📝 <strong>שונאים סיפור אהבה</strong> - דרמה רומנטית תקופתית. עיבוד מחדש לרומן האהוב של הסופר היהודי הדגול, זוכה פרס נובל לספרות. הסרט עפ"י הספר זכה להצלחה בכל העולם והיה מועמד לאוסקר...
+                        </p>
+                        
+                        <div class="space-y-1 text-[11px] md:text-xs text-slate-300 border-t border-purple-900/30 pt-3">
+                            <div class="flex items-center gap-2">
+                                <span>📁</span>
+                                <span><strong>סוג:</strong> הצגות</span>
                             </div>
-                            <a href="https://t.me/BamaBeClickbot" target="_blank" class="block w-full text-center py-2.5 bg-emerald-500 text-gray-950 font-bold rounded-lg hover:bg-emerald-400 text-xs lg:text-[10px] transition-all">לרכישת כרטיסים ופרטים נוספים</a>
-                        </div>
-
-                        <!-- Simulated Bot Keyboard -->
-                        <div class="space-y-1.5 pt-3 border-t border-gray-800/50">
-                            <p class="text-[10px] text-center text-gray-500 mb-1">לחצו על קטגוריה כדי לנסות:</p>
-                            
-                            <div class="grid grid-cols-1 gap-1.5">
-                                <!-- Group of exactly mapped categories from Telegram Bot -->
-                                <button onclick="simulateBot('🎬 סרטים', '🎬 סרטים', 'סרטים מומלצים השבוע בבתי הקולנוע:', '1. גלדיאтор 2 \n2. חולית: חלק שני \n3. מהיר ועצבני החדש', 'תל אביב / ירושלים', 'החל מ-44 ש״ח', 'bg-gradient-to-r from-cyan-600 to-blue-800')" class="py-3 lg:py-2.5 bg-[#2a3c54] hover:bg-[#344b68] text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all text-sm lg:text-xs">
-                                    <span>🎬 סרטים</span>
-                                </button>
-                                <button onclick="simulateBot('🎭 הצגות', '🎭 הצגות', 'הצגות תיאטרון מובילות בקופות:', '1. הכתובה - תיאטרון הבימה\n2. שוק המציאות - הקאמרי\n3. שלום לך ארץ', 'הבימה והקאמרי', 'החל מ-75 ש״ח', 'bg-gradient-to-r from-amber-600 to-red-800')" class="py-3 lg:py-2.5 bg-[#2a3c54] hover:bg-[#344b68] text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all text-sm lg:text-xs">
-                                    <span>🎭 הצגות</span>
-                                </button>
-                                <button onclick="simulateBot('🎸 הופעות', '⭐ מדינה קטנה - מופע המחווה לכוורת', 'מופע המחווה לכוורת ושבעת חבריה המופלאים. מופע מרגש וסוחף עם מיטב הלהיטים הבלתי נשכחים של להקת כוורת האגדית ושבעת חבריה האהובים....', 'מדינה קטנה', 'תל אביב-יפו', 'החל מ-116 ש״ח', 'retro-stripes', 'הופעות', 'יום ש\', 06/06/2026')" class="py-3 lg:py-2.5 bg-[#2a3c54] hover:bg-[#344b68] text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all text-sm lg:text-xs border border-emerald-500/40">
-                                    <span>🎸 הופעות</span>
-                                </button>
-                                <button onclick="simulateBot('🎤 סטנד אפ', '🌟 מעבדת הסטנדאפ', 'מעבדת הסטנדאפ חוזרת לעשות ניסויים! מיטב האמנים של הקאמל בערב בדיקת חומרים חדשים! בואו לראות סטנדאפ משובח באמצע השבוע! מיטב אמני הקאמל קומדי קלאב על במה אחת!...', 'הקאמל קומדי קלאב', 'תל אביב-יפו', 'החל מ-56 ש״ח', 'bg-gradient-to-r from-indigo-950 via-purple-900 to-slate-900')" class="py-3 lg:py-2.5 bg-[#2a3c54] hover:bg-[#344b68] text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all text-sm lg:text-xs">
-                                    <span>🎤 סטנד אפ</span>
-                                </button>
-                                <button onclick="simulateBot('🎈 ילדים', '🎈 מופעי ילדים', 'הצגות ופעילויות לכל המשפחה:', '1. יובל המבולבל - ההצגה\n2. קרקס גיבורי העל\n3. מני ממטרה במופע ענק', 'כל הארץ', 'החל מ-49 ש״ח', 'bg-gradient-to-r from-green-500 to-yellow-500')" class="py-3 lg:py-2.5 bg-[#2a3c54] hover:bg-[#344b68] text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all text-sm lg:text-xs">
-                                    <span>🎈 ילדים</span>
-                                </button>
-                                <button onclick="simulateBot('🎪 קרקס', '🎪 קרקסים ומופעי אקרובטיקה', 'הקרקסים הגדולים שמגיעים לארץ:', '1. קרקס מדראנו הגדול\n2. קרקס אקרובטיקה בינלאומי\n3. מופע האש והמים', 'חיפה ותל אביב', 'החל מ-69 ש״ח', 'bg-gradient-to-r from-purple-600 to-indigo-800')" class="py-3 lg:py-2.5 bg-[#2a3c54] hover:bg-[#344b68] text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all text-sm lg:text-xs">
-                                    <span>🎪 קרקס</span>
-                                </button>
-                                <button onclick="simulateBot('🎶 מחזמר', '🎶 מחזות זמר', 'מחזות זמר מרהיבים וענקיים:', '1. מרי לו - המחזמר\n2. קזבלן בגרסה החדשה\n3. סיפור הפרברים בקאמרי', 'תל אביב - היכל התרבות', 'החל מ-99 ש״ח', 'bg-gradient-to-r from-teal-600 to-cyan-800')" class="py-3 lg:py-2.5 bg-[#2a3c54] hover:bg-[#344b68] text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all text-sm lg:text-xs">
-                                    <span>🎶 מחזמר</span>
-                                </button>
-                                <button onclick="simulateBot('💡 הרצאות ותערוכות', '💡 הרצאות ותערוכות', 'תערוכות אמנות והרצאות מרתקות על הבר:', '1. תערוכת ואן גוך האינטראקטיבית\n2. הרצאה: סודות המוח על בירה\n3. תערוכת המדע הבינלאומית', 'מוזיאון ארץ ישראל', 'החל מ-45 ש״ח', 'bg-gradient-to-r from-gray-700 to-emerald-800')" class="py-3 lg:py-2.5 bg-[#2a3c54] hover:bg-[#344b68] text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all text-sm lg:text-xs">
-                                    <span>💡 הרצאות ותערוכות</span>
-                                </button>
-                                <button onclick="showLanguageAlert()" class="py-3 lg:py-2.5 bg-[#1e2d3e] hover:bg-[#283b51] text-gray-300 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all text-sm lg:text-xs">
-                                    <span>На русском 🇷🇺</span>
-                                </button>
-                                <button onclick="shareWithFriend()" class="py-3 lg:py-2.5 bg-[#1e2d3e] hover:bg-[#283b51] text-gray-300 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all text-sm lg:text-xs">
-                                    <span>שתף עם חבר 🔗</span>
-                                </button>
+                            <div class="flex items-center gap-2">
+                                <span>📍</span>
+                                <span><strong>עיר:</strong> תל אביב-יפו</span>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Why join section -->
-    <section id="why-join" class="py-20 bg-gray-900 border-t border-gray-800">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="text-center max-w-2xl mx-auto mb-16 space-y-2">
-                <span class="text-emerald-400 text-sm font-bold tracking-wider uppercase">היתרונות שלנו</span>
-                <h2 class="text-3xl md:text-4xl font-bold">למה כдאי לכם להצטרף אלינו?</h2>
-                <p class="text-gray-400">ריכזנו עבורכם את כל הסיבות לעבור לחיפוש חכם ומהיר של תרבות ופנאי</p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Benefit 1 -->
-                <div class="p-8 rounded-3xl bg-gray-950 border border-gray-800 hover:border-emerald-500/30 transition-all group">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="zap" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">חיסכון אדיר בזמן</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        במקום לשוטט בין עשרות קבוצות בפייסבוק, אתרי כרטיסים ולוחות הופעות – בוט אחד מרכז את הכל ומציג לכם תוצאות רלוונטיות תוך 5 שניות.
-                    </p>
-                </div>
-
-                <!-- Benefit 2 -->
-                <div class="p-8 rounded-3xl bg-gray-950 border border-gray-800 hover:border-emerald-500/30 transition-all group">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="bell" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">עדכונים חמים בערוץ</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        בערוץ הטלגרם שלנו נעלה מדי יום את ההמלצות החמות ביותר, כרטיסים בהנחה של הרגע האחרון, ומופעים שאסור לכם לפספס.
-                    </p>
-                </div>
-
-                <!-- Benefit 3 -->
-                <div class="p-8 rounded-3xl bg-gray-950 border border-gray-800 hover:border-emerald-500/30 transition-all group">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="languages" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">דו-לשוני (עברית ורוסית)</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        התאמה מלאה לקהל רחב. כל האירועים והחיפושים זמינים באופן מלא ומדויק גם בעברית וגם ברוסית בלחיצת כפתור אחת פשוטה.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How the Bot works (Screenshots / Steps style) -->
-    <section id="about-bot" class="py-20 bg-gray-950">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="text-center max-w-2xl mx-auto mb-16 space-y-2">
-                <span class="text-emerald-400 text-sm font-bold tracking-wider uppercase">איך זה עובד?</span>
-                <h2 class="text-3xl md:text-4xl font-bold">3 צעדים פשוטים להזמנת הכרטיס שלכם</h2>
-                <p class="text-gray-400">חוויית המשתמש שלנו נועדה להיות קלילה, ישירה ואינטואיטיבית</p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8 relative items-start">
-                <!-- Step 1 -->
-                <div class="text-center space-y-4">
-                    <div class="w-16 h-16 rounded-full bg-emerald-500 text-gray-950 font-extrabold text-xl flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
-                        1
-                    </div>
-                    <h3 class="text-xl font-bold text-white">מתחילים בטלגרם</h3>
-                    <p class="text-gray-400 text-sm max-w-xs mx-auto leading-relaxed">
-                        נכנסים ומצטרפים לערוץ <strong class="text-emerald-400">"במה בקליק"</strong>, עוברים לבוט של <strong class="text-emerald-400">"במה בקליק"</strong> ולוחצים על כפתור ה-<strong>Start</strong> כדי להפעיל אותו באופן מיידי ובחינם.
-                    </p>
-                    <div class="p-4 bg-gray-900 rounded-2xl border border-gray-800 max-w-[260px] mx-auto text-xs text-right space-y-2">
-                        <div class="flex items-center gap-2 text-emerald-400 font-bold">
-                            <i data-lucide="message-square" class="w-4 h-4"></i>
-                            <span>במה בקליק:</span>
-                        </div>
-                        <p class="text-gray-300">ברוכים הבאים לבמה בקליק. כל ההופעות, הסרטים וההצגות בלחיצת כפתור.</p>
-                        <span class="inline-block py-1 px-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded font-bold text-[10px]">Start 🚀</span>
-                    </div>
-                </div>
-
-                <!-- Step 2 -->
-                <div class="text-center space-y-4">
-                    <div class="w-16 h-16 rounded-full bg-emerald-500 text-gray-950 font-extrabold text-xl flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
-                        2
-                    </div>
-                    <h3 class="text-xl font-bold text-white">בוחרים קטגוריה</h3>
-                    <p class="text-gray-400 text-sm max-w-xs mx-auto leading-relaxed">
-                        בוחרים מה שמתחשק לכם מתוך מגוון ענק של קטגוריות בילוי ישירות מלוח הבוט הראשי והמעוצב.
-                    </p>
-                    <!-- Enhanced Category Mockup Panel mirroring the real screenshot categories -->
-                    <div class="p-3 bg-gray-900 rounded-2xl border border-gray-800 max-w-[260px] mx-auto text-xs space-y-1">
-                        <div class="py-1.5 px-3 bg-[#2a3c54]/80 text-center rounded border border-gray-750 text-[10px] text-white">🎬 סרטים</div>
-                        <div class="py-1.5 px-3 bg-[#2a3c54]/80 text-center rounded border border-gray-750 text-[10px] text-white">🎭 הצגות</div>
-                        <div class="py-1.5 px-3 bg-[#2a3c54]/80 text-center rounded border border-emerald-500/30 text-[10px] text-emerald-400 font-bold">🎸 הופעות</div>
-                        <div class="py-1.5 px-3 bg-[#2a3c54]/80 text-center rounded border border-gray-750 text-[10px] text-white">🎤 סטנד אפ</div>
-                        <div class="py-1.5 px-3 bg-[#2a3c54]/80 text-center rounded border border-gray-750 text-[10px] text-white">🎈 ילדים</div>
-                        <div class="py-1.5 px-3 bg-[#2a3c54]/80 text-center rounded border border-gray-750 text-[10px] text-white">🎪 קרקס</div>
-                    </div>
-                </div>
-
-                <!-- Step 3 -->
-                <div class="text-center space-y-4">
-                    <div class="w-16 h-16 rounded-full bg-emerald-500 text-gray-950 font-extrabold text-xl flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/10">
-                        3
-                    </div>
-                    <h3 class="text-xl font-bold text-white">יוצאים ליהנות!</h3>
-                    <p class="text-gray-400 text-sm max-w-xs mx-auto leading-relaxed">
-                        בוחרים את ההופעה או הסרט שאהבתם, מקבלים קישור ישיר לרכישת כרטיסים מאובטחת בלי עמלות מיותרות, ויוצאים לדרך.
-                    </p>
-                    <!-- Exact beautiful reconstruction of "Kaveret Tribute Show" (Little Country) Telegram post from screenshot -->
-                    <div class="p-3 bg-gray-900 rounded-2xl border border-gray-800 max-w-[260px] mx-auto text-xs text-right space-y-2 shadow-xl">
-                        <!-- Simulated Event Poster Graphic - Rebuilt in retro stripes from screenshot -->
-                        <div class="relative rounded-lg overflow-hidden h-28 retro-stripes flex flex-col justify-center items-center text-center p-2 border border-yellow-500/20 shadow-inner">
-                            <!-- Overlay dark filter for readability -->
-                            <div class="absolute inset-0 bg-black/35 z-0"></div>
-                            
-                            <div class="relative z-10 flex flex-col items-center">
-                                <span class="font-black text-yellow-300 text-lg leading-tight drop-shadow-[0_1.5px_1.5px_rgba(0,0,0,0.9)] tracking-tight">מדינה קטנה</span>
-                                <span class="font-bold text-white text-[10px] leading-tight drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)] tracking-wide mt-0.5">מופע המחווה לכוורת</span>
-                                <span class="font-semibold text-yellow-300 text-[8px] leading-tight drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)] tracking-widest mt-0.5">ושבעת חבריה המופלאים</span>
+                            <div class="flex items-center gap-2">
+                                <span>📅</span>
+                                <span><strong>יום ש',</strong> 13/06/2026</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span>⏰</span>
+                                <span><strong>שעה:</strong> 18:00:00</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-brand-accent font-bold text-xs md:text-sm pt-1">
+                                <span>💰</span>
+                                <span>החל מ-91 ש"ח</span>
                             </div>
                         </div>
                         
-                        <div class="space-y-1 text-gray-200">
-                            <p class="font-bold text-white text-xs flex items-center gap-1">🌟 מדינה קטנה - מופע המחווה לכוורת</p>
-                            <p class="text-[9px] text-gray-400 leading-normal">
-                                מופע המחווה לכוורת ושבעת חבריה המופלאים. מופע מרגש וסוחף עם מיטב הלהיטים הבלתי נשכחים של להקת כוורת האגדית...
-                            </p>
-                            <div class="text-[9px] pt-1.5 border-t border-gray-800 space-y-0.5 text-gray-300">
-                                <div>📂 סוג: הופעות</div>
-                                <div>📍 עיר: תל אביב-יפו</div>
-                                <div>📅 יום ש', 06/06/2026</div>
-                                <div>⏰ 21:30:00</div>
-                                <div>💰 החל מ-116 ש"ח</div>
-                            </div>
-                        </div>
-
-                        <!-- NEW BUTTON: Recreated green "למידע נוסף ורכישה" button from the screenshot -->
-                        <a href="https://t.me/BamaBeClickbot" target="_blank" class="mt-2.5 w-full py-2.5 bg-[#428155] hover:bg-[#4d9663] text-white font-extrabold rounded-xl text-[10.5px] flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95">
-                            <span>🎟️</span>
-                            <span>למידע נוסף ורכישה</span>
+                        <a href="https://t.me/BamaBeClickbot" target="_blank" class="block w-full bg-gradient-to-r from-brand-purple to-purple-500 hover:from-purple-500 hover:to-brand-purple text-white font-bold text-center py-2.5 rounded-xl transition-all shadow-md shadow-purple-500/20 text-xs active:scale-98">
+                            🎟️ לרכישת כרטיסים
                         </a>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Bottom CTA / Callout -->
-    <section class="py-20 bg-gradient-to-b from-gray-950 to-gray-900 border-t border-gray-850">
-        <div class="max-w-4xl mx-auto px-4 text-center space-y-8">
-            <h2 class="text-3xl md:text-5xl font-extrabold">מוכנים למצוא את הבילוי הבא שלכם?</h2>
-            <p class="text-gray-400 text-lg max-w-xl mx-auto font-light">
-                הצטרפו כבר עכשיו לעשרות משתמשים שמצאו את ההצגה או הסרט הבא שלהם בפחות מ-5 שניות. הבוט והערוץ פעילים וזמינים עבורכם 24/7!
+        <section class="max-w-4xl mx-auto px-4 py-8 md:py-20 text-center space-y-6">
+            <div class="bg-gradient-to-tr from-brand-purple/20 via-brand-purple/5 to-brand-accent/5 border border-purple-500/20 p-6 md:p-12 rounded-3xl space-y-4 md:space-y-6 shadow-2xl">
+                <h2 class="text-2xl md:text-4xl font-extrabold text-white">מוכנים למצוא את האירוע הבא שלכם?</h2>
+                <p class="text-slate-300 max-w-xl mx-auto text-sm md:text-lg font-light leading-relaxed">
+                    הצטרפו לאנשים שכבר נהנים מבילויים מושלמים בקליק. הבוט פעיל 24/7 וזמין עבורכם תמיד ללא שום עלות.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center items-center pt-2">
+                    <a href="https://t.me/BamaBeClickbot" target="_blank" class="bg-brand-telegram hover:scale-[1.02] active:scale-95 text-white font-extrabold text-base md:text-lg py-3.5 px-10 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-sky-500/20 w-full sm:w-auto">
+                        <i class="fa-brands fa-telegram text-2xl"></i>
+                        <span>להתחלה מהירה בטלגרם</span>
+                    </a>
+                </div>
+                <div class="text-[10px] md:text-xs text-slate-400 pt-2">
+                    *אין צורך ברישום או הזנת פרטים אישיים בדף זה. הבוט פועל ישירות בתוך אפליקציית טלגרם.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-purple-900/20 bg-black/60 py-6 md:py-8 text-center text-slate-500 text-[10px] md:text-xs">
+        <div class="max-w-6xl mx-auto px-4 space-y-3">
+            <p>© 2026 במה בקליק. כל הזכויות שמורות.</p>
+            <p class="max-w-md mx-auto text-[10px] md:text-[11px] text-slate-600 leading-relaxed">
+                המידע אודות מועדי האירועים, המיקומים והמחירים באחריות מפיקי האירועים וקופות הכרטיסים הרשמיות בלבד. השימוש בבוט הינו בכפוף לתנאי השימוש בטלגרם.
             </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="https://t.me/BamaBeClickbot" target="_blank" class="px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-gray-950 font-bold rounded-2xl shadow-xl shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
-                    <i data-lucide="play" class="w-5 h-5 fill-current"></i>
-                    <span>הפעלת הבוט בחינם</span>
-                </a>
-                <a href="https://t.me/BamaBeClick" target="_blank" class="px-8 py-4 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2">
-                    <i data-lucide="send" class="w-5 h-5"></i>
-                    <span>הצטרפות לערוץ</span>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="py-12 border-t border-gray-900 bg-gray-950 text-gray-500 text-sm">
-        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="flex items-center space-x-2 space-x-reverse">
-                <span class="p-1.5 bg-emerald-500 text-gray-950 rounded-lg font-bold text-sm">במה</span>
-                <span class="font-extrabold text-white">במה בקליק</span>
-            </div>
-            <p class="text-xs">&copy; 2026 במה בקליק. כל הזכויות שמורות. השירות הינו חינמי ונועד להנגשת אירועי תרבות.</p>
         </div>
     </footer>
 
     <script>
-        // Init Lucide Icons
-        lucide.createIcons();
+        const chatMessages = document.getElementById('chat-messages');
+        const actionPanel = document.getElementById('action-panel');
 
-        // Simulate Bot Interaction
-        function simulateBot(categoryName, title, descLine, subDesc, location, price, bannerGradient, typeName = null, dateValue = null) {
-            const resultBox = document.getElementById('simulated-result');
-            const cardBanner = document.getElementById('simulated-card-banner');
-            const cardTitle = document.getElementById('simulated-card-title');
-            const cardDesc = document.getElementById('simulated-card-desc');
-            const cardType = document.getElementById('simulated-card-type');
-            const cardCity = document.getElementById('simulated-card-city');
-            const cardPrice = document.getElementById('simulated-card-price');
-            const cardDate = document.getElementById('simulated-card-date');
-            
-            // Show box
-            resultBox.classList.remove('hidden');
-            
-            // Apply customized details to replicate bot search flow
-            cardBanner.className = `h-28 flex flex-col justify-center items-center font-bold text-center p-2 text-white relative overflow-hidden transition-all duration-300`;
-            
-            if (bannerGradient === 'retro-stripes') {
-                // Apply the Kaveret tribute theme exactly as seen in the poster
-                cardBanner.className += ' retro-stripes';
-                cardBanner.innerHTML = `
-                    <div class="absolute inset-0 bg-black/35 z-0"></div>
-                    <div class="relative z-10 flex flex-col items-center">
-                        <span class="font-black text-yellow-300 text-sm leading-tight tracking-tight">מדינה קטנה</span>
-                        <span class="font-bold text-white text-[9px] leading-tight tracking-wide mt-0.5">מופע המחווה לכוורת</span>
+        // Flow Stages
+        const stages = {
+            LANGUAGE: 'language',
+            DATE: 'date',
+            REGION: 'region',
+            CITY: 'city',
+            CATEGORY: 'category',
+            RESULT: 'result'
+        };
+
+        let currentStage = stages.LANGUAGE;
+
+        // Multi-language data
+        const simulatorData = {
+            languages: [
+                { id: 'he', text: '🇮🇱 עברית', botResponse: 'מתכננים יציאה? 🎈 בוא נבחר תאריך:' },
+                { id: 'ru', text: 'Русский 🇷🇺', botResponse: 'Планируете выход? 🎈 Давайте выберем дату:' }
+            ],
+            dates: {
+                he: [
+                    { id: 'today', text: 'היום 📅' },
+                    { id: 'weekend', text: 'סוף שבוע 🎉' },
+                    { id: 'next_week', text: 'שבוע הבא 📅' },
+                    { id: 'specific', text: 'בחר יום ספציפי 📅' }
+                ],
+                ru: [
+                    { id: 'today', text: 'Сегодня 📅' },
+                    { id: 'weekend', text: 'Выходные 🎉' },
+                    { id: 'next_week', text: 'Следующая неделя 📅' },
+                    { id: 'specific', text: 'Выбрать день 📅' }
+                ]
+            },
+            regions: {
+                he: [
+                    { id: 'north', text: 'צפון' },
+                    { id: 'sharon', text: 'השרון' },
+                    { id: 'center', text: 'מרכז' },
+                    { id: 'south', text: 'דרום' },
+                    { id: 'jerusalem', text: 'ירושלים' }
+                ],
+                ru: [
+                    { id: 'north', text: 'Север' },
+                    { id: 'sharon', text: 'Шарон' },
+                    { id: 'center', text: 'Центр' },
+                    { id: 'south', text: 'Юг' },
+                    { id: 'jerusalem', text: 'Иерусалим' }
+                ]
+            },
+            cities: {
+                he: [
+                    { id: 'tel_aviv', text: 'תל אביב-יפו' },
+                    { id: 'ramat_gan', text: 'רמת גן' },
+                    { id: 'givatayim', text: 'גבעתיים' },
+                    { id: 'rishon', text: 'ראשון לציון' },
+                    { id: 'monastery', text: "מנזר בית ג'מל" },
+                    { id: 'airport_city', text: 'איירפורט סיטי' }
+                ],
+                ru: [
+                    { id: 'tel_aviv', text: 'Тель-Авив-Яффо' },
+                    { id: 'ramat_gan', text: 'Рамат-Ган' },
+                    { id: 'givatayim', text: 'Гиватаим' },
+                    { id: 'rishon', text: 'Ришон-ле-Цион' },
+                    { id: 'monastery', text: "Монастырь Бейт-Джемаль" },
+                    { id: 'airport_city', text: 'Аэропорт Сити' }
+                ]
+            },
+            categories: {
+                he: [
+                    { id: 'plays', text: 'הצגות 🎭' },
+                    { id: 'concerts', text: 'הופעות 🎸' },
+                    { id: 'standup', text: 'סטנד אפ 🎤' }
+                ],
+                ru: [
+                    { id: 'plays', text: 'Спектакли 🎭' },
+                    { id: 'concerts', text: 'Концерты 🎸' },
+                    { id: 'standup', text: 'Стендап 🎤' }
+                ]
+            }
+        };
+
+        // User Selection Object
+        let selections = {
+            lang: 'he',
+            date: '',
+            region: '',
+            city: '',
+            category: ''
+        };
+
+        function initSimulator() {
+            resetSimulator();
+        }
+
+        function resetSimulator() {
+            chatMessages.innerHTML = `
+                <!-- Bot Welcome (Emulating Screenshot 2026-06-12 at 17.23.31.png) -->
+                <div class="flex flex-col gap-1 max-w-[85%] self-start">
+                    <div class="bg-[#1d173a] text-slate-100 rounded-2xl rounded-tr-sm px-3.5 py-2.5 shadow-md border border-purple-950">
+                        <p class="font-semibold text-[10px] text-purple-300 mb-1">במה בקליק</p>
+                        <p>היי! ברוכים הבאים לבוט "במה בקליק" 🎭</p>
                     </div>
-                `;
-            } else {
-                cardBanner.className += ` ${bannerGradient}`;
-                cardBanner.innerHTML = `<span class="text-[10px] opacity-80 uppercase">במה בקליק מציג:</span><span class="text-base font-extrabold mt-1">${categoryName}</span>`;
-            }
+                </div>
+            `;
+            selections = { lang: 'he', date: '', region: '', city: '', category: '' };
+            currentStage = stages.LANGUAGE;
+            showLanguageSelection();
+        }
+
+        function appendBotMessage(text, isRtl = true) {
+            const alignment = isRtl ? 'self-start text-right' : 'self-start text-left';
+            const direction = isRtl ? 'dir="rtl"' : 'dir="ltr"';
+            const botLabel = isRtl ? 'במה בקליק' : 'BamaBeClick';
             
-            cardTitle.innerText = title;
-            cardDesc.innerHTML = `${descLine}<br><span class="text-gray-500 mt-1 block">${subDesc}</span>`;
-            cardType.innerText = `📂 סוג: ${typeName ? typeName : categoryName.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim()}`;
-            cardCity.innerText = `📍 עיר: ${location}`;
-            cardPrice.innerText = `💰 ${price}`;
+            const msgHtml = `
+                <div class="flex flex-col gap-1 max-w-[85%] ${alignment}" ${direction}>
+                    <div class="bg-[#1d173a] text-slate-100 rounded-2xl rounded-tr-sm px-3.5 py-2.5 shadow-md border border-purple-950">
+                        <p class="font-semibold text-[9px] text-purple-300 mb-1">${botLabel}</p>
+                        <p>${text}</p>
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', msgHtml);
+            scrollToBottom();
+        }
+
+        function appendUserMessage(text, isRtl = true) {
+            const alignment = isRtl ? 'self-end text-right' : 'self-end text-left';
+            const direction = isRtl ? 'dir="rtl"' : 'dir="ltr"';
             
-            if (dateValue) {
-                cardDate.innerText = `📅 ${dateValue}`;
-            } else {
-                cardDate.innerText = `📅 יום ד', 03/06/2026`;
-            }
+            const msgHtml = `
+                <div class="flex flex-col gap-1 max-w-[85%] ${alignment}" ${direction}>
+                    <div class="bg-brand-purple text-white rounded-2xl rounded-tl-sm px-3.5 py-2 shadow-md">
+                        <p>${text}</p>
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', msgHtml);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // STEP 1: Language selection (Screenshot 2026-06-12 at 17.24.56.png)
+        function showLanguageSelection() {
+            appendBotMessage("בחר שפה / Выберите язык", true);
+            actionPanel.innerHTML = `
+                <div class="grid grid-cols-2 gap-3 w-full">
+                    <button onclick="selectLanguage('he')" class="bg-brand-card hover:bg-purple-950 text-white font-bold py-3 px-4 rounded-xl border border-purple-500/20 hover:border-purple-500/40 transition-all duration-200 shadow text-xs md:text-sm active:scale-95">
+                        🇮🇱 עברית
+                    </button>
+                    <button onclick="selectLanguage('ru')" class="bg-brand-card hover:bg-purple-950 text-white font-bold py-3 px-4 rounded-xl border border-purple-500/20 hover:border-purple-500/40 transition-all duration-200 shadow text-xs md:text-sm active:scale-95">
+                        Русский 🇷🇺
+                    </button>
+                </div>
+            `;
+        }
+
+        function selectLanguage(lang) {
+            selections.lang = lang;
+            const chosenText = lang === 'he' ? 'עברית 🇮🇱' : 'Русский 🇷🇺';
+            appendUserMessage(chosenText, lang === 'he');
             
-            // Scroll simulation or effect
-            resultBox.classList.add('animate-pulse');
             setTimeout(() => {
-                resultBox.classList.remove('animate-pulse');
-            }, 500);
+                currentStage = stages.DATE;
+                const nextMsg = lang === 'he' ? 'מתכננים יציאה? 🎈 בוא נבחר תאריך:' : 'Планируете выход? 🎈 Давайте выберем дату:';
+                appendBotMessage(nextMsg, lang === 'he');
+                showDateSelection();
+            }, 400);
         }
 
-        function showLanguageAlert() {
-            const resultBox = document.getElementById('simulated-result');
-            const cardBanner = document.getElementById('simulated-card-banner');
-            const cardTitle = document.getElementById('simulated-card-title');
-            const cardDesc = document.getElementById('simulated-card-desc');
-            const cardType = document.getElementById('simulated-card-type');
-            const cardCity = document.getElementById('simulated-card-city');
-            const cardPrice = document.getElementById('simulated-card-price');
-            const cardDate = document.getElementById('simulated-card-date');
+        // STEP 2: Date Selection (Screenshot 2026-06-12 at 17.25.14.png)
+        function showDateSelection() {
+            const dates = simulatorData.dates[selections.lang];
+            let buttonsHtml = `<div class="grid grid-cols-2 gap-2.5 w-full">`;
+            dates.forEach(d => {
+                buttonsHtml += `
+                    <button onclick="selectDate('${d.id}', '${d.text}')" class="bg-[#1a1435] hover:bg-purple-950 text-slate-100 text-xs font-semibold py-2.5 px-3 rounded-xl border border-purple-900/40 hover:border-purple-500/30 transition-all duration-200 shadow-sm active:scale-95">
+                        ${d.text}
+                    </button>
+                `;
+            });
+            buttonsHtml += `</div>`;
+            actionPanel.innerHTML = buttonsHtml;
+        }
 
-            resultBox.classList.remove('hidden');
-            cardBanner.className = `h-28 flex flex-col justify-center items-center font-bold text-center p-2 text-white bg-gradient-to-r from-blue-700 via-white to-red-600 transition-all duration-300`;
-            cardBanner.innerHTML = `<span class="text-base font-extrabold">На русском языке 🇷🇺</span>`;
+        function selectDate(dateId, dateText) {
+            selections.date = dateId;
+            appendUserMessage(dateText, selections.lang === 'he');
+
+            setTimeout(() => {
+                currentStage = stages.REGION;
+                const nextMsg = selections.lang === 'he' ? 'איפה מחפשים? 📍 בחר את האזור המבוקש:' : 'Где ищем? 📍 Выберите регион:';
+                appendBotMessage(nextMsg, selections.lang === 'he');
+                showRegionSelection();
+            }, 400);
+        }
+
+        // STEP 3: Region Selection (Screenshot 2026-06-12 at 17.25.35.png)
+        function showRegionSelection() {
+            const regions = simulatorData.regions[selections.lang];
+            const backBtnText = selections.lang === 'he' ? 'חזרה לבחירת תאריך ⬅️' : 'Назад к выбору даты ⬅️';
             
-            cardTitle.innerText = `🎭 Добро пожаловать!`;
-            cardDesc.innerText = `Все мероприятия, кинотеатры и стендапы теперь доступны на русском языке в один клик.`;
-            cardType.innerText = `📂 Язык: Русский`;
-            cardCity.innerText = `📍 Город: Все города`;
-            cardPrice.innerText = `💰 Цены: Отличные скидки`;
-            cardDate.innerText = `📅 24/7`;
-        }
-
-        function shareWithFriend() {
-            const resultBox = document.getElementById('simulated-result');
-            const cardBanner = document.getElementById('simulated-card-banner');
-            const cardTitle = document.getElementById('simulated-card-title');
-            const cardDesc = document.getElementById('simulated-card-desc');
-            const cardType = document.getElementById('simulated-card-type');
-            const cardCity = document.getElementById('simulated-card-city');
-            const cardPrice = document.getElementById('simulated-card-price');
-            const cardDate = document.getElementById('simulated-card-date');
-
-            resultBox.classList.remove('hidden');
-            cardBanner.className = `h-28 flex flex-col justify-center items-center font-bold text-center p-2 text-white bg-emerald-600 transition-all duration-300`;
-            cardBanner.innerHTML = `<span class="text-base font-extrabold">שתף עם חבר 🔗</span>`;
+            let buttonsHtml = `<div class="grid grid-cols-2 gap-2.5 w-full">`;
+            regions.forEach(r => {
+                buttonsHtml += `
+                    <button onclick="selectRegion('${r.id}', '${r.text}')" class="bg-[#1a1435] hover:bg-purple-950 text-slate-100 text-xs font-semibold py-2.5 px-2 rounded-xl border border-purple-900/40 hover:border-purple-500/30 transition-all duration-200 shadow-sm active:scale-95">
+                        ${r.text}
+                    </button>
+                `;
+            });
             
-            cardTitle.innerText = `🔗 שתפו ותהנו ביחד!`;
-            cardDesc.innerText = `שלחו את הבוט לחברים שלכם כדי לתכנן את הבילוי המושלם ביחד בתוך שניות!`;
-            cardType.innerText = `📂 פעולה: שיתוף קישור`;
-            cardCity.innerText = `📍 מיקום: כל הארץ`;
-            cardPrice.innerText = `💰 עלות: 100% חינם`;
-            cardDate.innerText = `📅 תמיד זמין`;
+            // Back button
+            buttonsHtml += `
+                <button onclick="goBackToDate()" class="col-span-2 bg-[#2d1e45] hover:bg-purple-900 text-slate-300 text-xs font-bold py-2 px-3 rounded-xl border border-purple-500/20 transition-all active:scale-95">
+                    ${backBtnText}
+                </button>
+            </div>`;
+            
+            actionPanel.innerHTML = buttonsHtml;
         }
+
+        function goBackToDate() {
+            appendUserMessage(selections.lang === 'he' ? 'חזרה לבחירת תאריך' : 'Назад к выбору даты', selections.lang === 'he');
+            setTimeout(() => {
+                showDateSelection();
+            }, 300);
+        }
+
+        function selectRegion(regionId, regionText) {
+            selections.region = regionId;
+            appendUserMessage(regionText, selections.lang === 'he');
+
+            setTimeout(() => {
+                currentStage = stages.CITY;
+                const nextMsg = selections.lang === 'he' ? 'מעולה! איזו עיר הכי מעניינת אותך? 🏙️' : 'Отлично! Какой город вас интересует? 🏙️';
+                appendBotMessage(nextMsg, selections.lang === 'he');
+                showCitySelection();
+            }, 400);
+        }
+
+        // STEP 4: City Selection (Screenshot 2026-06-12 at 17.25.53.png)
+        function showCitySelection() {
+            const cities = simulatorData.cities[selections.lang];
+            const backBtnText = selections.lang === 'he' ? 'חזרה לבחירת אזור ⬅️' : 'Назад к выбору региона ⬅️';
+            
+            let buttonsHtml = `<div class="grid grid-cols-2 gap-2 w-full">`;
+            cities.forEach(c => {
+                buttonsHtml += `
+                    <button onclick="selectCity('${c.id}', '${c.text}')" class="bg-[#1a1435] hover:bg-purple-950 text-slate-100 text-[11px] font-semibold py-2 px-1 rounded-xl border border-purple-900/40 hover:border-purple-500/30 transition-all duration-200 truncate active:scale-95">
+                        ${c.text}
+                    </button>
+                `;
+            });
+            
+            buttonsHtml += `
+                <button onclick="goBackToRegion()" class="col-span-2 bg-[#2d1e45] hover:bg-purple-900 text-slate-300 text-xs font-bold py-2 px-3 rounded-xl border border-purple-500/20 transition-all active:scale-95">
+                    ${backBtnText}
+                </button>
+            </div>`;
+            actionPanel.innerHTML = buttonsHtml;
+        }
+
+        function goBackToRegion() {
+            appendUserMessage(selections.lang === 'he' ? 'חזרה לבחירת אזור' : 'Назад', selections.lang === 'he');
+            setTimeout(() => {
+                showRegionSelection();
+            }, 300);
+        }
+
+        function selectCity(cityId, cityText) {
+            selections.city = cityText;
+            appendUserMessage(cityText, selections.lang === 'he');
+
+            setTimeout(() => {
+                currentStage = stages.CATEGORY;
+                const nextMsg = selections.lang === 'he' 
+                    ? `מעולה! עכשיו בחר קטגוריה כדי לראות את כל מה שקורה ב${cityText}:` 
+                    : `Отлично! Выберите категорию, чтобы увидеть все события в ${cityText}:`;
+                appendBotMessage(nextMsg, selections.lang === 'he');
+                showCategorySelection();
+            }, 400);
+        }
+
+        // STEP 5: Category Selection (Screenshot 2026-06-12 at 17.26.11.png)
+        function showCategorySelection() {
+            const categories = simulatorData.categories[selections.lang];
+            const backBtnText = selections.lang === 'he' ? 'חזרה לבחירת עיר ⬅️' : 'Назад к выбору города ⬅️';
+            
+            let buttonsHtml = `<div class="grid grid-cols-3 gap-2 w-full">`;
+            categories.forEach(c => {
+                buttonsHtml += `
+                    <button onclick="selectCategory('${c.id}', '${c.text}')" class="bg-[#1a1435] hover:bg-purple-950 text-slate-100 text-xs font-semibold py-2.5 px-1 rounded-xl border border-purple-900/40 hover:border-purple-500/30 transition-all duration-200 active:scale-95">
+                        ${c.text}
+                    </button>
+                `;
+            });
+            
+            buttonsHtml += `
+                <button onclick="goBackToCity()" class="col-span-3 bg-[#2d1e45] hover:bg-purple-900 text-slate-300 text-xs font-bold py-2 px-3 rounded-xl border border-purple-500/20 transition-all active:scale-95">
+                    ${backBtnText}
+                </button>
+            </div>`;
+            actionPanel.innerHTML = buttonsHtml;
+        }
+
+        function goBackToCity() {
+            appendUserMessage(selections.lang === 'he' ? 'חזרה לבחירת עיר' : 'Назад', selections.lang === 'he');
+            setTimeout(() => {
+                showCitySelection();
+            }, 300);
+        }
+
+        function selectCategory(categoryId, categoryText) {
+            selections.category = categoryId;
+            appendUserMessage(categoryText, selections.lang === 'he');
+
+            setTimeout(() => {
+                currentStage = stages.RESULT;
+                showFinalResultCard();
+            }, 550);
+        }
+
+        // STEP 6: Display Final Realistic Card + Subscription (Screenshots 2026-06-12 at 17.26.41.jpg and 17.28.10.png)
+        function showFinalResultCard() {
+            const isHeb = selections.lang === 'he';
+            const resultsHeaderText = isHeb ? 'מציג 1 מתוך 15 תוצאות' : 'Показывает 1 из 15 найденных результатов';
+            appendBotMessage(resultsHeaderText, isHeb);
+
+            // Localization variables for the final card
+            const cardTitle = isHeb ? '⭐ שונאים סיפור אהבה - תיאטרון בית ליסין' : '⭐ Враги. История любви - Театр Бейт-Лесин';
+            const cardDesc = isHeb 
+                ? '📝 <strong>שונאים סיפור אהבה</strong> - דרמה רומנטית תקופתית. עיבוד מחדש לרומן האהוב של הסופר היהודי הדגול, זוכה פרס נובל לספרות. הסרט עפ"י הספר זכה להצלחה בכל העולם והיה מועמד לאוסקר...'
+                : '📝 <strong>Враги. История любви</strong> - романтическая историческая драма. Новая адаптация культового романа великого еврейского писателя, лауреата Нобелевской премии по литературе...';
+            
+            const labelCategory = isHeb ? 'סוג' : 'Категория';
+            const valCategory = isHeb ? 'הצגות' : 'Спектакли';
+            const labelCity = isHeb ? 'עיר' : 'Город';
+            const labelDate = isHeb ? 'תאריך' : 'Дата';
+            const valDate = isHeb ? 'יום ש\', 13/06/2026' : 'Суббота, 13/06/2026';
+            const labelTime = isHeb ? 'שעה' : 'Время';
+            const valPrice = isHeb ? 'החל מ-91 ש"ח' : 'от 91 ₪';
+            const btnBuyText = isHeb ? '🎟️ לרכישת כרטיסים' : '🎟️ Купить билеты';
+
+            const alignmentClass = isHeb ? 'text-right self-start' : 'text-left self-start';
+            const dirClass = isHeb ? 'rtl' : 'ltr';
+
+            // Realistic card identical to Screenshot 2026-06-12 at 17.26.41.jpg
+            const cardHtml = `
+                <div class="flex flex-col gap-1 max-w-[90%] ${alignmentClass} animate-fade-in" dir="${dirClass}">
+                    <div class="bg-[#1c163a] border border-purple-500/25 rounded-2xl overflow-hidden shadow-xl text-xs">
+                        <div class="h-28 md:h-32 bg-cover bg-center flex items-end p-2 relative" style="background-image: url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=600&auto=format&fit=crop');">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#1c163a] via-transparent to-black/50"></div>
+                            <span class="absolute top-2 ${isHeb ? 'right-2' : 'left-2'} bg-amber-500 text-slate-900 font-extrabold px-1.5 py-0.5 rounded text-[9px] md:text-[10px]">${cardTitle}</span>
+                        </div>
+                        <div class="p-3 space-y-2">
+                            <p class="text-slate-300 text-[10px] md:text-[11px] leading-relaxed">
+                                ${cardDesc}
+                            </p>
+                            <div class="space-y-1 text-slate-300 text-[9px] md:text-[10px] border-t border-purple-900/30 pt-2">
+                                <div>📁 <strong>${labelCategory}:</strong> ${valCategory}</div>
+                                <div>📍 <strong>${labelCity}:</strong> ${selections.city}</div>
+                                <div>📅 <strong>${labelDate}:</strong> ${valDate}</div>
+                                <div>⏰ <strong>${labelTime}:</strong> 18:00:00</div>
+                                <div class="text-brand-accent font-bold mt-1 text-[10px] md:text-[11px]">💰 ${valPrice}</div>
+                            </div>
+                            <a href="https://t.me/BamaBeClickbot" target="_blank" class="block w-full bg-brand-accent hover:bg-amber-600 text-slate-950 font-bold text-center py-2 rounded-lg transition-colors mt-2 text-[11px] md:text-xs">
+                                ${btnBuyText}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', cardHtml);
+            scrollToBottom();
+
+            // Set Action Panel identical to Telegram Buttons in Screenshot 2026-06-12 at 17.28.10.png
+            const loadMoreText = isHeb ? 'הצג עוד (1/15) ⬇️' : 'Показать еще (1/15) ⬇️';
+            const alertText = isHeb 
+                ? `קבל התראות על אירועים ב${selections.city} 🔔` 
+                : `Получать уведомления о событиях в ${selections.city} 🔔`;
+            const searchNewText = isHeb ? 'חיפוש חדש 🏠' : 'Новый поиск 🏠';
+
+            actionPanel.innerHTML = `
+                <div class="flex flex-col gap-2 w-full" dir="${dirClass}">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="resetSimulator()" class="bg-[#241e3d] hover:bg-purple-900/30 text-slate-100 font-semibold py-2 px-3 rounded-xl text-xs transition-all border border-purple-900/40 active:scale-95">
+                            ${searchNewText}
+                        </button>
+                        <a href="https://t.me/BamaBeClickbot" target="_blank" class="bg-[#1a1435] hover:bg-purple-950 text-slate-200 font-semibold py-2 px-3 rounded-xl text-center text-xs border border-purple-900/40 transition-all flex items-center justify-center active:scale-95">
+                            ${loadMoreText}
+                        </a>
+                    </div>
+                    <a href="https://t.me/BamaBeClickbot" target="_blank" class="bg-[#1d1538] hover:bg-brand-purple text-brand-accent hover:text-white font-bold py-2.5 px-4 rounded-xl text-center text-xs flex items-center justify-center gap-2 border border-purple-500/20 transition-all active:scale-95">
+                        <span>${alertText}</span>
+                    </a>
+                </div>
+            `;
+        }
+
+        // Run Simulator on Load
+        window.onload = initSimulator;
     </script>
 </body>
 </html>
